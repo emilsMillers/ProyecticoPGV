@@ -48,6 +48,7 @@ public class Servidor extends javax.swing.JFrame {
     private void detenerServidor() {
         if (servidor != null) {
             servidor.detenerServidor();
+            dispose();
         }
     }
 
