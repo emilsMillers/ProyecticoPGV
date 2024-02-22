@@ -8,10 +8,16 @@ package com.mycompany.proyectopgvdad.servidores;
  *
  * @author emils
  */
+
 import java.io.IOException;
 import java.io.ObjectOutputStream;
+import java.net.Inet4Address;
+import java.net.InetAddress;
+import java.net.NetworkInterface;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketException;
+import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -29,9 +35,11 @@ public class ServidorTCP {
             contadorServidores++;
             int puerto = PUERTO_INICIAL;
             try {
-                ServerSocket serverSocket = new ServerSocket(puerto);
-                mapaServidoresSockets.put("Servidor " + contadorServidores, serverSocket);
-                System.out.println("Servidor TCP iniciado en el puerto " + puerto);
+            String ipLocal = obtenerIPLocal();
+            InetAddress inetAddress = InetAddress.getByName(ipLocal);
+            ServerSocket serverSocket = new ServerSocket(puerto, 0, inetAddress);
+            mapaServidoresSockets.put("Servidor " + contadorServidores, serverSocket);
+            System.out.println("Servidor TCP iniciado en la dirección IP " + inetAddress.getHostAddress() + " y puerto " + puerto);
 
                 while (!Thread.interrupted()) {
                     Socket clientSocket = serverSocket.accept();
@@ -46,7 +54,25 @@ public class ServidorTCP {
             }
         }, "Servidor-" + contadorServidores);
     }
-
+    
+    private String obtenerIPLocal() {
+    try {
+        Enumeration<NetworkInterface> interfacesDeRed = NetworkInterface.getNetworkInterfaces();
+        while (interfacesDeRed.hasMoreElements()) {
+            NetworkInterface interfazDeRed = interfacesDeRed.nextElement();
+            Enumeration<InetAddress> direccionesIP = interfazDeRed.getInetAddresses();
+            while (direccionesIP.hasMoreElements()) {
+                InetAddress direccionIP = direccionesIP.nextElement();
+                if (!direccionIP.isLoopbackAddress() && direccionIP instanceof Inet4Address) {
+                    return direccionIP.getHostAddress();
+                }
+            }
+        }
+    } catch (SocketException e) {
+        e.printStackTrace();
+    }
+    return null;
+}
     public void iniciarServidor(String direccionIP) {
         serverThread.start();
     }
@@ -82,3 +108,4 @@ public class ServidorTCP {
         }
     }
 }
+
