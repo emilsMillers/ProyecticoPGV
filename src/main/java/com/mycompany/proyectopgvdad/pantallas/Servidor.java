@@ -20,13 +20,16 @@ public class Servidor extends javax.swing.JFrame {
      */
     
     private ServidorTCP servidor;
-
-    public Servidor() {
+    private boolean usarLANInalambrica;
+    
+    
+    public Servidor(boolean usarLANInalambrica) {
         initComponents();
+        this.usarLANInalambrica = this.usarLANInalambrica;
         String direccionIP = obtenerDireccionIP();
         mostrarDireccionIP(direccionIP);
         if (direccionIP != null) {
-            servidor = new ServidorTCP();
+            servidor = new ServidorTCP(usarLANInalambrica);
             servidor.iniciarServidor(direccionIP);
         }
     }

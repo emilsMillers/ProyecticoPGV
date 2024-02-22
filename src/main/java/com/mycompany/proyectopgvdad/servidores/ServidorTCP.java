@@ -30,16 +30,22 @@ public class ServidorTCP {
     private static final Map<String, Socket> mapaClientesSockets = new HashMap<>();
     private final Thread serverThread;
 
-    public ServidorTCP() {
+    private boolean usarLANInalambrica;
+
+    public ServidorTCP(boolean usarLANInalambrica) {
+        this.usarLANInalambrica = usarLANInalambrica;
         this.serverThread = new Thread(() -> {
             contadorServidores++;
             int puerto = PUERTO_INICIAL;
             try {
-            String ipLocal = obtenerIPLocal();
-            InetAddress inetAddress = InetAddress.getByName(ipLocal);
-            ServerSocket serverSocket = new ServerSocket(puerto, 0, inetAddress);
-            mapaServidoresSockets.put("Servidor " + contadorServidores, serverSocket);
-            System.out.println("Servidor TCP iniciado en la dirección IP " + inetAddress.getHostAddress() + " y puerto " + puerto);
+                String ipLocal = obtenerIPLocal();
+                if (usarLANInalambrica) {
+                    ipLocal = obtenerIPInalambrica();
+                }
+                InetAddress inetAddress = InetAddress.getByName(ipLocal);
+                ServerSocket serverSocket = new ServerSocket(puerto, 0, inetAddress);
+                mapaServidoresSockets.put("Servidor " + contadorServidores, serverSocket);
+                System.out.println("Servidor TCP iniciado en la dirección IP " + inetAddress.getHostAddress() + " y puerto " + puerto);
 
                 while (!Thread.interrupted()) {
                     Socket clientSocket = serverSocket.accept();
@@ -65,6 +71,26 @@ public class ServidorTCP {
                 InetAddress direccionIP = direccionesIP.nextElement();
                 if (!direccionIP.isLoopbackAddress() && direccionIP instanceof Inet4Address) {
                     return direccionIP.getHostAddress();
+                }
+            }
+        }
+    } catch (SocketException e) {
+        e.printStackTrace();
+    }
+    return null;
+}
+    private String obtenerIPInalambrica() {
+    try {
+        Enumeration<NetworkInterface> interfacesDeRed = NetworkInterface.getNetworkInterfaces();
+        while (interfacesDeRed.hasMoreElements()) {
+            NetworkInterface interfazDeRed = interfacesDeRed.nextElement();
+            if (interfazDeRed.getName().startsWith("wlan") || interfazDeRed.getName().startsWith("wlp")) {
+                Enumeration<InetAddress> direccionesIP = interfazDeRed.getInetAddresses();
+                while (direccionesIP.hasMoreElements()) {
+                    InetAddress direccionIP = direccionesIP.nextElement();
+                    if (!direccionIP.isLoopbackAddress() && direccionIP instanceof Inet4Address) {
+                        return direccionIP.getHostAddress();
+                    }
                 }
             }
         }

@@ -57,10 +57,12 @@ public class Principal extends javax.swing.JFrame {
     private ScheduledExecutorService scheduler;
     private int contadorSegundos = 0;
     private boolean avisoRam, avisoCPU = false;
-
-    public Principal() {
+    private boolean usarLANInalambrica;
+    
+    public Principal(boolean usarLANInalambrica) {
         super("Monitoreo de Servidores");
         initComponents();
+        this.usarLANInalambrica = this.usarLANInalambrica;
         this.cpuDataset = new XYSeriesCollection();
         this.discoDataset = new DefaultPieDataset();
         this.ramDataset = new DefaultCategoryDataset();
@@ -81,7 +83,7 @@ public class Principal extends javax.swing.JFrame {
     }
     scheduler = Executors.newScheduledThreadPool(1);
     scheduler.scheduleAtFixedRate(() -> {
-        ServidorTCP servidor = new ServidorTCP();
+        ServidorTCP servidor = new ServidorTCP(usarLANInalambrica);
         mapaServidores.put(nombreServidor, servidor);
         ClienteTCP cliente = new ClienteTCP(this);
         cliente.conectarAServidor(nombreServidor); 
@@ -220,7 +222,7 @@ public class Principal extends javax.swing.JFrame {
     private void crearNuevoServidor() {
     String ip = obtenerIP();
     if (ip != null && !ip.isEmpty()) {
-        ServidorTCP servidor = new ServidorTCP();
+        ServidorTCP servidor = new ServidorTCP(usarLANInalambrica);
         mapaServidores.put(ip, servidor);
         agregarServidorALista(ip, servidor);
         enviarMensajeAlServidor(ip, "¡Se ha conectado un nuevo cliente!");
