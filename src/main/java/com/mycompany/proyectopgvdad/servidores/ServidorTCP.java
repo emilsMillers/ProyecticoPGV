@@ -33,7 +33,7 @@ public class ServidorTCP {
     private boolean usarLANInalambrica;
 
     public ServidorTCP(boolean usarLANInalambrica) {
-        this.usarLANInalambrica = usarLANInalambrica;
+        this.usarLANInalambrica = this.usarLANInalambrica;
         this.serverThread = new Thread(() -> {
             contadorServidores++;
             int puerto = PUERTO_INICIAL;
@@ -43,7 +43,7 @@ public class ServidorTCP {
                     ipLocal = obtenerIPInalambrica();
                 }
                 InetAddress inetAddress = InetAddress.getByName(ipLocal);
-                ServerSocket serverSocket = new ServerSocket(puerto, 0, inetAddress);
+                ServerSocket serverSocket = new ServerSocket(puerto);
                 mapaServidoresSockets.put("Servidor " + contadorServidores, serverSocket);
                 System.out.println("Servidor TCP iniciado en la dirección IP " + inetAddress.getHostAddress() + " y puerto " + puerto);
 

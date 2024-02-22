@@ -62,7 +62,7 @@ public class Principal extends javax.swing.JFrame {
     public Principal(boolean usarLANInalambrica) {
         super("Monitoreo de Servidores");
         initComponents();
-        this.usarLANInalambrica = this.usarLANInalambrica;
+        this.usarLANInalambrica = usarLANInalambrica;
         this.cpuDataset = new XYSeriesCollection();
         this.discoDataset = new DefaultPieDataset();
         this.ramDataset = new DefaultCategoryDataset();
