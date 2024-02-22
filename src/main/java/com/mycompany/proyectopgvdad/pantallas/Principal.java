@@ -745,7 +745,10 @@ try {
     }//GEN-LAST:event_jPanel11MouseClicked
 
     private void jPanel10MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jPanel10MouseClicked
-        System.exit(0);
+        Inicio pantalla = new Inicio();
+        pantalla.setVisible(true);
+        pantalla.setLocationRelativeTo(null);
+        dispose();
     }//GEN-LAST:event_jPanel10MouseClicked
 
     private void jPanel7MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_jPanel7MouseClicked
