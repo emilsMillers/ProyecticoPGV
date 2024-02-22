@@ -71,6 +71,7 @@ public class Principal extends javax.swing.JFrame {
             if (!e.getValueIsAdjusting()) {
                 String servidorSeleccionado = getServidorSeleccionado();
                 if (servidorSeleccionado != null) {
+                    reiniciarGraficos();
                     conectarAServidor(servidorSeleccionado);
                 }
             }
