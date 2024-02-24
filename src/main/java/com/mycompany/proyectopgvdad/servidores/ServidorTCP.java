@@ -30,10 +30,9 @@ public class ServidorTCP {
     private static final Map<String, Socket> mapaClientesSockets = new HashMap<>();
     private final Thread serverThread;
 
-    private boolean usarLANInalambrica;
+    private boolean usarLANInalambrica = false;
 
-    public ServidorTCP(boolean usarLANInalambrica) {
-        this.usarLANInalambrica = this.usarLANInalambrica;
+    public ServidorTCP() {
         this.serverThread = new Thread(() -> {
             contadorServidores++;
             int puerto = PUERTO_INICIAL;

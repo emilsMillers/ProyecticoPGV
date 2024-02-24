@@ -20,16 +20,13 @@ public class Servidor extends javax.swing.JFrame {
      */
     
     private ServidorTCP servidor;
-    private boolean usarLANInalambrica;
     
-    
-    public Servidor(boolean usarLANInalambrica) {
+    public Servidor() {
         initComponents();
-        this.usarLANInalambrica = this.usarLANInalambrica;
         String direccionIP = obtenerDireccionIP();
         mostrarDireccionIP(direccionIP);
         if (direccionIP != null) {
-            servidor = new ServidorTCP(usarLANInalambrica);
+            servidor = new ServidorTCP();
             servidor.iniciarServidor(direccionIP);
         }
     }
@@ -71,6 +68,7 @@ public class Servidor extends javax.swing.JFrame {
         ipDir = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setResizable(false);
 
         jPanel1.setBackground(new java.awt.Color(182, 207, 222));
         jPanel1.setForeground(new java.awt.Color(0, 0, 0));
