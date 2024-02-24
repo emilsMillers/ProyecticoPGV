@@ -168,7 +168,42 @@ public class Principal extends javax.swing.JFrame {
             contadorSegundos += 3;
             if (usoCPU >= sliderCPU.getValue() && !avisoCPU) {
                 JOptionPane.showMessageDialog(null, "El uso de la CPU ha superado el " + sliderCPU.getValue() + "%", "Alerta de Uso de la CPU", JOptionPane.WARNING_MESSAGE);
-                avisoCPU = true;
+                String servidorSeleccionado = getServidorSeleccionado();
+                     DefaultCategoryDataset ramDataset = this.ramDataset;
+            DefaultPieDataset discoDataset = this.discoDataset;
+
+            String rutaArchivo = "informacion_graficos.csv";
+
+            try (FileWriter writer = new FileWriter(rutaArchivo, true)) {
+                if (new File(rutaArchivo).length() == 0) {
+                    writer.append("Servidor;Tiempo (s);Uso de CPU (%);Uso de RAM (GB);RAM Total (GB);Uso de Disco (GB);Disco Libre (GB)\n");
+                }
+
+                int itemCount = cpuSeries.getItemCount();
+                for (int i = 0; i < itemCount; i++) {
+                    int tiempo = Math.round(cpuSeries.getX(i).floatValue());
+                    double usoCPUs = Math.round(cpuSeries.getY(i).doubleValue() * 10) / 10.0;
+                    double usoRAM = Math.round(ramDataset.getValue("RAM", "Usada").doubleValue() * 10) / 10.0;
+                    double ramTotal = Math.round(ramDataset.getValue("RAM", "Total").doubleValue() * 10) / 10.0;
+                    double usoDisco = Math.round(discoDataset.getValue("Uso").doubleValue() * 10) / 10.0;
+                    double discoTotal = Math.round(discoDataset.getValue("Libre").doubleValue() * 10) / 10.0;
+
+                    writer.append(servidorSeleccionado + " Aviso de CPU. Uso de CPU: " + usoCPUs + "%").append(";")
+                            .append(String.valueOf(tiempo)).append(";")
+                            .append(String.valueOf(usoCPUs).replace('.', ',')).append(";")
+                            .append(String.valueOf(usoRAM).replace('.', ',')).append(";")
+                            .append(String.valueOf(ramTotal).replace('.', ',')).append(";")
+                            .append(String.valueOf(usoDisco).replace('.', ',')).append(";")
+                            .append(String.valueOf(discoTotal).replace('.', ',')).append("\n");
+                }
+
+                JOptionPane.showMessageDialog(this, "Datos de los gráficos guardados en " + rutaArchivo,
+                        "Guardado Exitoso", JOptionPane.INFORMATION_MESSAGE);
+            } catch (IOException e) {
+                JOptionPane.showMessageDialog(this, "Error al guardar los datos: " + e.getMessage(),
+                        "Error", JOptionPane.ERROR_MESSAGE);
+            }
+                avisoCPU = true;     
             } else if (usoCPU < sliderCPU.getValue() && avisoCPU) {
                 avisoCPU = false;
             }
@@ -182,6 +217,42 @@ public class Principal extends javax.swing.JFrame {
             ramDataset.addValue(ramTotalEnMB, "RAM", "Total");
             if (((porcentajeRAM / ramTotalEnMB) * 100) >= sliderRam.getValue() && !avisoRam) {
                 JOptionPane.showMessageDialog(null, "El uso de RAM ha superado el " + sliderRam.getValue() + "%", "Alerta de Uso de RAM", JOptionPane.WARNING_MESSAGE);
+                String servidorSeleccionado = getServidorSeleccionado();
+                XYSeries cpuSeries = cpuDataset.getSeries(0);
+                     DefaultCategoryDataset ramDataset = this.ramDataset;
+            DefaultPieDataset discoDataset = this.discoDataset;
+
+            String rutaArchivo = "informacion_graficos.csv";
+
+            try (FileWriter writer = new FileWriter(rutaArchivo, true)) {
+                if (new File(rutaArchivo).length() == 0) {
+                    writer.append("Servidor;Tiempo (s);Uso de CPU (%);Uso de RAM (GB);RAM Total (GB);Uso de Disco (GB);Disco Libre (GB)\n");
+                }
+
+                int itemCount = cpuSeries.getItemCount();
+                for (int i = 0; i < itemCount; i++) {
+                    int tiempo = Math.round(cpuSeries.getX(i).floatValue());
+                    double usoCPU = Math.round(cpuSeries.getY(i).doubleValue() * 10) / 10.0;
+                    double usoRAM = Math.round(ramDataset.getValue("RAM", "Usada").doubleValue() * 10) / 10.0;
+                    double ramTotal = Math.round(ramDataset.getValue("RAM", "Total").doubleValue() * 10) / 10.0;
+                    double usoDisco = Math.round(discoDataset.getValue("Uso").doubleValue() * 10) / 10.0;
+                    double discoTotal = Math.round(discoDataset.getValue("Libre").doubleValue() * 10) / 10.0;
+
+                    writer.append(servidorSeleccionado + " Aviso de RAM. Uso de RAM: " + Math.round(((porcentajeRAM / ramTotalEnMB) * 100) * 10) / 10.0 + "%" ).append(";")
+                            .append(String.valueOf(tiempo)).append(";")
+                            .append(String.valueOf(usoCPU).replace('.', ',')).append(";")
+                            .append(String.valueOf(usoRAM).replace('.', ',')).append(";")
+                            .append(String.valueOf(ramTotal).replace('.', ',')).append(";")
+                            .append(String.valueOf(usoDisco).replace('.', ',')).append(";")
+                            .append(String.valueOf(discoTotal).replace('.', ',')).append("\n");
+                }
+
+                JOptionPane.showMessageDialog(this, "Datos de los gráficos guardados en " + rutaArchivo,
+                        "Guardado Exitoso", JOptionPane.INFORMATION_MESSAGE);
+            } catch (IOException e) {
+                JOptionPane.showMessageDialog(this, "Error al guardar los datos: " + e.getMessage(),
+                        "Error", JOptionPane.ERROR_MESSAGE);
+            }
                 avisoRam = true;
             } else if (((porcentajeRAM / ramTotalEnMB) * 100) < sliderRam.getValue() && avisoRam) {
                 avisoRam = false;
@@ -222,22 +293,27 @@ public class Principal extends javax.swing.JFrame {
     String ip = obtenerIP();
     if (ip != null && !ip.isEmpty()) {
         ServidorTCP servidor = new ServidorTCP();
-        mapaServidores.put(ip, servidor);
-        agregarServidorALista(ip, servidor);
-        enviarMensajeAlServidor(ip, "¡Se ha conectado un nuevo cliente!");
+        if (enviarMensajeAlServidor(ip, "¡Se ha conectado un nuevo cliente!")) {
+            mapaServidores.put(ip, servidor);
+            agregarServidorALista(ip, servidor);
+        } else {
+            JOptionPane.showMessageDialog(this, "Error al establecer la conexión con el servidor en la IP: " + ip, "Error de conexión", JOptionPane.ERROR_MESSAGE);
+        }
     }
 }
 
-private void enviarMensajeAlServidor(String ipServidor, String mensaje) {
-try {
+private boolean enviarMensajeAlServidor(String ipServidor, String mensaje) {
+    try {
         Socket socket = new Socket(ipServidor, 8080); 
         ObjectOutputStream outputStream = new ObjectOutputStream(socket.getOutputStream());
         outputStream.writeObject(mensaje);
         outputStream.flush();
         outputStream.close();
         socket.close();
+        return true; 
     } catch (IOException e) {
         e.printStackTrace();
+        return false; 
     }
 }
 
